@@ -18,7 +18,7 @@ func validateCEP(cep string) bool {
 
 func getCityFromCEP(cep string) (string, error) {
 	if !validateCEP(cep) {
-		return "", fmt.Errorf("invalid zipcode")
+		return "", fmt.Errorf("invalid zipcode format accepted 00000-00")
 	}
 
 	url := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", cep)
