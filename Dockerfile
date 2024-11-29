@@ -1,20 +1,22 @@
-# Use Go base image
-FROM golang:1.20-alpine
+FROM golang:1.22 as build
 
-# Set working directory in the container
 WORKDIR /app
 
-# Copy all files into the container
-COPY . .
-
-# Install dependencies
+COPY go.mod go.sum ./
 RUN go mod tidy
 
-# Build the application
-RUN go build -o weather-api .
+COPY . ./
 
-# Expose the application port
-EXPOSE 8080
+COPY .env ./
 
-# Start the application
-CMD ["./weather-api"]
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o weather-api .
+
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=build /app/weather-api .
+
+COPY --from=build /app/.env ./
+
+ENTRYPOINT ["./weather-api"]
